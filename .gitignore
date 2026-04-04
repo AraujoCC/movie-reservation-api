@@ -4,6 +4,22 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+# Env
+.env
+.env.*
+
+# Logs
+*.log
+logs/
+
+# Databases
+*.db
+*.sqlite
+
+# OS
+.DS_Store
+Thumbs.db
+
 ### STS ###
 .apt_generated
 .classpath
@@ -31,3 +47,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Docker
+docker-compose.override.yml
+docker-compose.*.yml
+docker-compose.yml

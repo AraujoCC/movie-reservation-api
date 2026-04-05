@@ -12,7 +12,7 @@ services:
     environment:
       POSTGRES_DB: moviedb
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: dev2026
     ports:
       - "5432:5432"
     volumes:

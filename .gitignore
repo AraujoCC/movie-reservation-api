@@ -1,24 +1,8 @@
 HELP.md
 target/
-.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-
-# Env
-.env
-.env.*
-
-# Logs
-*.log
-logs/
-
-# Databases
-*.db
-*.sqlite
-
-# OS
-.DS_Store
-Thumbs.db
 
 ### STS ###
 .apt_generated
@@ -35,6 +19,9 @@ Thumbs.db
 *.iml
 *.ipr
 
+### VS Code ###
+.vscode/
+
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
@@ -45,10 +32,14 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### VS Code ###
-.vscode/
+### Mac ###
+.DS_Store
 
-# Docker
-docker-compose.override.yml
-docker-compose.*.yml
-docker-compose.yml
+# ===============================
+# SEGURANÇA — nunca commite estes
+# ===============================
+.env
+.env.*
+!.env.example
+*.pem
+*.key

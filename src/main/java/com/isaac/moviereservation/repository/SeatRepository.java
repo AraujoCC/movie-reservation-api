@@ -18,16 +18,13 @@ public interface SeatRepository extends JpaRepository<Seat, UUID> {
     @Query("SELECT s FROM Seat s WHERE s.id IN :ids")
     List<Seat> findByIdInWithLock(@Param("ids") List<UUID> ids);
 
-    // Assentos ocupados (PENDING ou CONFIRMED) em uma sessão
+    // Navega a partir de Reservation — caminho correto no modelo de domínio:
+    // Reservation → session → (filtra sessionId) → seats (join)
     @Query("""
-        SELECT s FROM Seat s
-        JOIN s.room r
-        JOIN r.sessions ses
-        JOIN ses.reservations res
-        JOIN res.seats rs
-        WHERE ses.id = :sessionId
-          AND rs.id  = s.id
-          AND res.status IN ('PENDING', 'CONFIRMED')
+        SELECT DISTINCT s FROM Seat s
+        JOIN Reservation r ON s MEMBER OF r.seats
+        WHERE r.session.id = :sessionId
+          AND r.status IN ('PENDING', 'CONFIRMED')
         """)
     List<Seat> findOccupiedSeatsBySession(@Param("sessionId") UUID sessionId);
 }

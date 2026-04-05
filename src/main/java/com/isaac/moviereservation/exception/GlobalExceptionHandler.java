@@ -1,5 +1,5 @@
 package com.isaac.moviereservation.exception;
- 
+
 import org.springframework.http.*;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -7,15 +7,18 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
- 
+
+import lombok.extern.slf4j.Slf4j;
+
 import java.net.URI;
 import java.time.Instant;
 import java.util.Map;
 import java.util.stream.Collectors;
- 
+
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
- 
+
     // 404 — recurso não encontrado
     @ExceptionHandler(ResourceNotFoundException.class)
     public ProblemDetail handleNotFound(ResourceNotFoundException ex, WebRequest request) {
@@ -25,7 +28,7 @@ public class GlobalExceptionHandler {
         pd.setProperty("timestamp", Instant.now());
         return pd;
     }
- 
+
     // 409 — conflito (ex: assento já reservado, e-mail duplicado)
     @ExceptionHandler(ConflictException.class)
     public ProblemDetail handleConflict(ConflictException ex, WebRequest request) {
@@ -35,7 +38,7 @@ public class GlobalExceptionHandler {
         pd.setProperty("timestamp", Instant.now());
         return pd;
     }
- 
+
     // 422 — regra de negócio violada
     @ExceptionHandler(BusinessException.class)
     public ProblemDetail handleBusiness(BusinessException ex) {
@@ -45,7 +48,7 @@ public class GlobalExceptionHandler {
         pd.setProperty("timestamp", Instant.now());
         return pd;
     }
- 
+
     // 400 — falha de validação do Bean Validation (@Valid)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidation(MethodArgumentNotValidException ex) {
@@ -53,9 +56,9 @@ public class GlobalExceptionHandler {
                 .collect(Collectors.toMap(
                         FieldError::getField,
                         fe -> fe.getDefaultMessage() != null ? fe.getDefaultMessage() : "invalid",
-                        (a, b) -> a   // campo com múltiplos erros: mantém o primeiro
+                        (a, b) -> a // campo com múltiplos erros: mantém o primeiro
                 ));
- 
+
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(
                 HttpStatus.BAD_REQUEST, "Validation failed for one or more fields");
         pd.setTitle("Validation Error");
@@ -64,7 +67,7 @@ public class GlobalExceptionHandler {
         pd.setProperty("fields", fields);
         return pd;
     }
- 
+
     // 401 — credenciais inválidas no login
     @ExceptionHandler(BadCredentialsException.class)
     public ProblemDetail handleBadCredentials(BadCredentialsException ex) {
@@ -74,7 +77,7 @@ public class GlobalExceptionHandler {
         pd.setProperty("timestamp", Instant.now());
         return pd;
     }
- 
+
     // 403 — sem permissão (@PreAuthorize falhou)
     @ExceptionHandler(AccessDeniedException.class)
     public ProblemDetail handleAccessDenied(AccessDeniedException ex) {
@@ -84,10 +87,10 @@ public class GlobalExceptionHandler {
         pd.setProperty("timestamp", Instant.now());
         return pd;
     }
- 
-    // 500 — qualquer coisa não tratada
+
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleGeneric(Exception ex) {
+        log.error("Unexpected error: {}", ex.getMessage(), ex); // ← esta linha
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(
                 HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred");
         pd.setTitle("Internal Server Error");

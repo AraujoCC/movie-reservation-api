@@ -21,6 +21,7 @@ import com.stripe.param.PaymentIntentCreateParams;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,10 +34,12 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
- 
+
     private final PaymentRepository paymentRepository;
     private final ReservationRepository reservationRepository;
-    private final ReservationEventProducer eventProducer;   // ← novo
+
+    @Autowired(required = false)
+    private ReservationEventProducer eventProducer;
  
     @Value("${stripe.api-key}")
     private String stripeApiKey;
@@ -146,7 +149,9 @@ public class PaymentService {
                 intentId, reservation.getId());
  
         // Publica o evento no Kafka para o consumer salvar no MongoDB
-        eventProducer.publishConfirmed(reservation);
+        if (eventProducer != null) {
+            eventProducer.publishConfirmed(reservation);
+        }
     }
  
     private void handlePaymentFailed(Event event) {
